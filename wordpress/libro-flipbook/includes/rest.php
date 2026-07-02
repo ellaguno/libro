@@ -41,8 +41,10 @@ function libro_flipbook_register_routes(): void
     register_rest_route('libro-flipbook/v1', '/books', [
         [
             'methods'             => 'GET',
+            // Lectura: también autores/editores (el bloque Gutenberg lista
+            // los libros al insertarlo); los datos son públicos de por sí.
             'callback'            => 'libro_flipbook_rest_books_list',
-            'permission_callback' => 'libro_flipbook_can_manage',
+            'permission_callback' => 'libro_flipbook_can_edit',
         ],
         [
             'methods'             => 'POST',
@@ -55,6 +57,11 @@ function libro_flipbook_register_routes(): void
 function libro_flipbook_can_manage(): bool
 {
     return current_user_can('manage_options');
+}
+
+function libro_flipbook_can_edit(): bool
+{
+    return current_user_can('edit_posts');
 }
 
 /** Respuesta JSON con código de estado (mismo formato que el standalone). */
@@ -268,7 +275,18 @@ function libro_flipbook_upload_abort(WP_REST_Request $request): WP_REST_Response
 
 function libro_flipbook_rest_books_list(): WP_REST_Response
 {
-    return libro_flipbook_json(['books' => libro_flipbook_list_books()]);
+    $url = libro_flipbook_books_url();
+    $dir = libro_flipbook_books_dir();
+    $books = array_map(static function (array $book) use ($url, $dir): array {
+        // Portada para las vistas previas (bloque Gutenberg, panel).
+        $ext = ($book['format'] ?? 'webp') === 'jpeg' ? 'jpg' : 'webp';
+        $slug = $book['slug'];
+        $book['cover'] = is_file("$dir/$slug/cover.$ext")
+            ? "$url/$slug/cover.$ext"
+            : "$url/$slug/pages/page-001.$ext";
+        return $book;
+    }, libro_flipbook_list_books());
+    return libro_flipbook_json(['books' => $books]);
 }
 
 function libro_flipbook_rest_books_modify(WP_REST_Request $request): WP_REST_Response

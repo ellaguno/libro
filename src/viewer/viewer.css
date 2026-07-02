@@ -481,6 +481,45 @@ button.vw-pagenum:hover {
     background: rgba(255, 255, 255, 0.28);
 }
 
+/* ===== Blindaje contra estilos de temas (WordPress u otros CMS) =====
+   Los temas suelen imponer img { max-width:100%; height:auto }, tipografías
+   y decoraciones de liga que romperían el visor embebido; se re-afirma lo
+   crítico con mayor especificidad, acotado a .vw-app. */
+.vw-app,
+.vw-app * {
+    box-sizing: border-box;
+}
+
+.vw-app .vw-page img {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.vw-app .vw-thumb img {
+    height: 90px;
+    width: auto;
+    max-width: none;
+}
+
+.vw-app button {
+    font: inherit;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.vw-app .vw-title {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.vw-app a {
+    text-decoration: none;
+    box-shadow: none; /* algunos temas "subrayan" ligas con box-shadow */
+}
+
 /* ============ Móvil ============ */
 @media (max-width: 640px) {
     .vw-nav {
@@ -499,7 +538,8 @@ button.vw-pagenum:hover {
         font-size: 0.9rem;
     }
 
-    .vw-thumb img {
+    /* Especificidad .vw-app para ganarle a la regla de blindaje de arriba. */
+    .vw-app .vw-thumb img {
         height: 64px;
     }
 }

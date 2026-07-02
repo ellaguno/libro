@@ -1,0 +1,282 @@
+# Copyright (C) 2026 SesoLibre
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Libro Flipbook 0.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/libro-flipbook\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-07-02T19:57:24+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: libro-flipbook\n"
+
+#. Plugin Name of the plugin
+#: libro-flipbook.php
+msgid "Libro Flipbook"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: libro-flipbook.php
+msgid "https://github.com/ellaguno/libro"
+msgstr ""
+
+#. Description of the plugin
+#: libro-flipbook.php
+msgid "Publica PDFs como libros y revistas con paso de página realista. Inserta un libro en cualquier entrada con el shortcode [libro slug=\"mi-revista\"]."
+msgstr ""
+
+#. Author of the plugin
+#: libro-flipbook.php
+msgid "SesoLibre"
+msgstr ""
+
+#. Author URI of the plugin
+#: libro-flipbook.php
+msgid "https://sesolibre.com"
+msgstr ""
+
+#: includes/admin-page.php:17
+#: includes/admin-page.php:18
+#: includes/admin-page.php:61
+msgid "Libros"
+msgstr ""
+
+#: includes/admin-page.php:63
+msgid "Sube un PDF: se convierte a imágenes en tu navegador y se publica como flipbook."
+msgstr ""
+
+#: includes/admin-page.php:64
+msgid "Inserta un libro en cualquier entrada con su shortcode."
+msgstr ""
+
+#: includes/admin-page.php:78
+msgid "Nueva publicación"
+msgstr ""
+
+#: includes/admin-page.php:80
+msgid "Título"
+msgstr ""
+
+#: includes/admin-page.php:83
+msgid "Archivo PDF"
+msgstr ""
+
+#: includes/admin-page.php:86
+msgid "Calidad de imagen"
+msgstr ""
+
+#: includes/admin-page.php:88
+msgid "Normal (1200 px)"
+msgstr ""
+
+#: includes/admin-page.php:89
+msgid "Alta (1600 px)"
+msgstr ""
+
+#: includes/admin-page.php:90
+msgid "Muy alta (2000 px)"
+msgstr ""
+
+#: includes/admin-page.php:95
+msgid "Portada de pasta dura (la primera y última página giran rígidas)"
+msgstr ""
+
+#: includes/admin-page.php:99
+msgid "Convertir y publicar"
+msgstr ""
+
+#: includes/admin-page.php:110
+msgid "Publicaciones"
+msgstr ""
+
+#: includes/admin-page.php:111
+msgid "Cargando…"
+msgstr ""
+
+#: includes/rest.php:89
+#: includes/rest.php:323
+msgid "Acción desconocida"
+msgstr ""
+
+#: includes/rest.php:107
+msgid "Datos inválidos"
+msgstr ""
+
+#. translators: %s: slug del libro
+#: includes/rest.php:115
+#, php-format
+msgid "Ya existe una publicación con el slug \"%s\""
+msgstr ""
+
+#: includes/rest.php:123
+msgid "No se pudo crear la carpeta del libro"
+msgstr ""
+
+#: includes/rest.php:152
+msgid "Índice de página inválido"
+msgstr ""
+
+#: includes/rest.php:186
+msgid "Fragmento inválido"
+msgstr ""
+
+#. translators: %s: límite de PHP
+#: includes/rest.php:194
+#, php-format
+msgid "El fragmento supera el límite de subida de PHP (upload_max_filesize=%s)"
+msgstr ""
+
+#: includes/rest.php:199
+msgid "Error al recibir el fragmento"
+msgstr ""
+
+#: includes/rest.php:206
+msgid "El PDF supera el tamaño máximo permitido"
+msgstr ""
+
+#: includes/rest.php:212
+msgid "El archivo no es un PDF válido"
+msgstr ""
+
+#: includes/rest.php:220
+msgid "No se pudo guardar el fragmento"
+msgstr ""
+
+#. translators: %d: número de página
+#: includes/rest.php:247
+#, php-format
+msgid "Falta la página %d"
+msgstr ""
+
+#: includes/rest.php:300
+#: includes/rest.php:309
+msgid "La publicación no existe"
+msgstr ""
+
+#: includes/rest.php:303
+msgid "No se pudo eliminar"
+msgstr ""
+
+#: includes/rest.php:313
+msgid "Título vacío"
+msgstr ""
+
+#: includes/rest.php:335
+msgid "No hay una subida en curso para este libro"
+msgstr ""
+
+#: includes/rest.php:339
+msgid "Metadatos corruptos"
+msgstr ""
+
+#: includes/rest.php:348
+msgid "Falta un archivo de imagen"
+msgstr ""
+
+#. translators: %s: límite de PHP
+#: includes/rest.php:356
+#, php-format
+msgid "La imagen supera el límite de subida de PHP (upload_max_filesize=%s)"
+msgstr ""
+
+#: includes/rest.php:361
+msgid "Error al recibir la imagen"
+msgstr ""
+
+#: includes/rest.php:364
+msgid "Imagen demasiado grande"
+msgstr ""
+
+#: includes/rest.php:368
+msgid "Tipo de imagen no permitido"
+msgstr ""
+
+#: includes/rest.php:371
+msgid "No se pudo guardar la imagen"
+msgstr ""
+
+#. translators: %s: slug del libro
+#: includes/shortcode.php:59
+#, php-format
+msgid "[libro]: no existe la publicación \"%s\" en uploads/libro/."
+msgstr ""
+
+#: blocks/libro/editor.js:51
+msgid "páginas"
+msgstr ""
+
+#: blocks/libro/editor.js:56
+msgid "Vista previa: el flipbook interactivo aparece en la entrada publicada."
+msgstr ""
+
+#: blocks/libro/editor.js:82
+msgid "Publicación"
+msgstr ""
+
+#: blocks/libro/editor.js:84
+#: blocks/libro/editor.js:111
+#: blocks/libro/editor.js:117
+msgid "Libro"
+msgstr ""
+
+#: blocks/libro/editor.js:86
+msgid "— Elegir —"
+msgstr ""
+
+#: blocks/libro/editor.js:94
+msgid "Página inicial (opcional)"
+msgstr ""
+
+#: blocks/libro/editor.js:101
+msgid "Alto (CSS)"
+msgstr ""
+
+#: blocks/libro/editor.js:102
+msgid "Ej. 600px, 75vh"
+msgstr ""
+
+#: blocks/libro/editor.js:119
+msgid "Elige una publicación en el panel lateral."
+msgstr ""
+
+#: blocks/libro/editor.js:120
+msgid "No hay publicaciones todavía: súbelas en el menú \"Libros\"."
+msgstr ""
+
+#: blocks/libro/editor.js:125
+msgid "— Elegir libro —"
+msgstr ""
+
+#: blocks/libro/block.json
+msgctxt "block title"
+msgid "Libro"
+msgstr ""
+
+#: blocks/libro/block.json
+msgctxt "block description"
+msgid "Inserta un libro o revista con paso de página realista."
+msgstr ""
+
+#: blocks/libro/block.json
+msgctxt "block keyword"
+msgid "libro"
+msgstr ""
+
+#: blocks/libro/block.json
+msgctxt "block keyword"
+msgid "revista"
+msgstr ""
+
+#: blocks/libro/block.json
+msgctxt "block keyword"
+msgid "flipbook"
+msgstr ""
+
+#: blocks/libro/block.json
+msgctxt "block keyword"
+msgid "pdf"
+msgstr ""

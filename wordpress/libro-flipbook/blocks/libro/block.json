@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "libro-flipbook/libro",
+    "title": "Libro",
+    "category": "media",
+    "icon": "book",
+    "description": "Inserta un libro o revista con paso de página realista.",
+    "keywords": ["libro", "revista", "flipbook", "pdf"],
+    "textdomain": "libro-flipbook",
+    "attributes": {
+        "slug": { "type": "string", "default": "" },
+        "p": { "type": "number", "default": 0 },
+        "alto": { "type": "string", "default": "75vh" }
+    },
+    "supports": {
+        "html": false,
+        "align": ["wide", "full"]
+    },
+    "editorScript": "file:./editor.js"
+}
