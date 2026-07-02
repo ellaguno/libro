@@ -1,0 +1,11 @@
+# Carpeta de datos: solo se sirven imágenes, PDF y JSON. Nada ejecutable.
+Options -Indexes
+
+<FilesMatch "\.(php|phtml|php\d|pl|py|cgi|sh)$">
+  Require all denied
+</FilesMatch>
+
+# Los metadatos internos de subidas pendientes no se sirven.
+<Files "pending.json">
+  Require all denied
+</Files>

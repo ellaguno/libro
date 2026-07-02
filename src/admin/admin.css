@@ -1,0 +1,247 @@
+* {
+    box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+body.admin {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f2f3f7;
+    color: #23262f;
+    min-height: 100vh;
+}
+
+/* ---------- Login ---------- */
+.login-box {
+    max-width: 340px;
+    margin: 14vh auto;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 14px;
+    box-shadow: 0 12px 35px rgba(30, 40, 90, 0.12);
+}
+
+.login-box h1 {
+    margin: 0 0 1.2rem;
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+.login-box .error {
+    background: #ffe5e8;
+    color: #b3122f;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* ---------- Formularios ---------- */
+label {
+    display: block;
+    margin: 0.9rem 0 0.25rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+input[type='text'],
+input[type='password'],
+input[type='file'],
+select {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid #d4d7e1;
+    border-radius: 8px;
+    font: inherit;
+    background: #fff;
+}
+
+button {
+    font: inherit;
+    cursor: pointer;
+}
+
+.check-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-weight: 400;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.check-label input {
+    width: auto;
+    accent-color: #3b5bfd;
+}
+
+button[type='submit'] {
+    margin-top: 1.2rem;
+    width: 100%;
+    padding: 0.65rem;
+    background: #3b5bfd;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.15s;
+}
+
+button[type='submit']:hover {
+    background: #2946e0;
+}
+
+button[type='submit']:disabled {
+    background: #9aa6e8;
+    cursor: wait;
+}
+
+/* ---------- Layout del panel ---------- */
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.5rem;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+}
+
+.admin-header h1 {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.admin-header nav a {
+    margin-left: 1rem;
+    color: #3b5bfd;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.admin-main {
+    max-width: 880px;
+    margin: 2rem auto;
+    padding: 0 1.2rem 3rem;
+    display: grid;
+    gap: 2rem;
+}
+
+.upload-section,
+.books-section {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 18px rgba(30, 40, 90, 0.07);
+}
+
+.upload-section h2,
+.books-section h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+}
+
+/* ---------- Progreso ---------- */
+.progress {
+    margin-top: 1.2rem;
+}
+
+.progress-bar {
+    height: 10px;
+    background: #e4e7f0;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #3b5bfd, #7aa2ff);
+    border-radius: 999px;
+    transition: width 0.25s ease;
+}
+
+.progress p {
+    font-size: 0.85rem;
+    margin: 0.45rem 0 0;
+    color: #555c6e;
+}
+
+/* ---------- Lista de publicaciones ---------- */
+.book-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid #eceef4;
+}
+
+.book-row:last-child {
+    border-bottom: none;
+}
+
+.book-row img {
+    height: 62px;
+    width: 46px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #dde;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.book-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.book-info strong {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.book-info span {
+    font-size: 0.8rem;
+    color: #6a7183;
+}
+
+.book-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.book-actions a {
+    color: #3b5bfd;
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+.book-actions button {
+    background: #eef0f7;
+    border: none;
+    border-radius: 7px;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+}
+
+.book-actions button:hover {
+    background: #dfe3f0;
+}
+
+.book-actions button.danger {
+    color: #b3122f;
+}
+
+.book-actions button.danger:hover {
+    background: #ffe5e8;
+}
+
+@media (max-width: 560px) {
+    .book-row {
+        flex-wrap: wrap;
+    }
+}
