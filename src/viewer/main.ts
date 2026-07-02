@@ -44,6 +44,7 @@ class BookViewer {
     private pageLabel!: HTMLElement;
     private thumbsDrawer!: HTMLElement;
     private thumbButtons: HTMLButtonElement[] = [];
+    private gutter: HTMLElement | null = null;
 
     constructor(root: HTMLElement, cfg: BookConfig) {
         this.root = root;
@@ -148,7 +149,8 @@ class BookViewer {
             width: this.cfg.width,
             height: this.cfg.height,
             size: 'stretch',
-            minWidth: 200,
+            // Bajo 2×minWidth de ancho disponible se pasa a una sola página (móvil).
+            minWidth: 320,
             maxWidth: 1200,
             minHeight: 280,
             maxHeight: 1600,
@@ -166,6 +168,45 @@ class BookViewer {
 
         // Doble clic sobre el libro abre el zoom.
         bookEl.addEventListener('dblclick', () => this.openZoom());
+
+        this.initGutter();
+    }
+
+    // -------------------------------------------- Sombra del canal central
+
+    /** Crea la sombra sutil que emerge de la unión entre las dos páginas. */
+    private initGutter(): void {
+        const block = this.root.querySelector<HTMLElement>('.stf__block');
+        if (!block) return;
+        this.gutter = document.createElement('div');
+        this.gutter.className = 'vw-gutter';
+        block.appendChild(this.gutter);
+
+        const update = (): void => this.updateGutter();
+        this.pageFlip.on('changeOrientation', update);
+        this.pageFlip.on('flip', update);
+        window.addEventListener('resize', () => requestAnimationFrame(update));
+        // Tras el primer render las páginas ya tienen posición.
+        requestAnimationFrame(update);
+    }
+
+    private updateGutter(): void {
+        const block = this.root.querySelector<HTMLElement>('.stf__block');
+        if (!block || !this.gutter) return;
+
+        // En modo una-página no hay unión central.
+        const page = block.querySelector<HTMLElement>('.vw-page.--simple');
+        if (!page || this.pageFlip.getOrientation() === 'portrait') {
+            this.gutter.style.display = 'none';
+            return;
+        }
+
+        // El lomo es el borde interior de cualquier página estática.
+        const r = page.getBoundingClientRect();
+        const b = block.getBoundingClientRect();
+        const x = page.classList.contains('--left') ? r.right - b.left : r.left - b.left;
+        this.gutter.style.cssText =
+            `display: block; left: ${x}px; top: ${r.top - b.top}px; height: ${r.height}px;`;
     }
 
     /** Índices (base 1) de las páginas visibles en este momento. */

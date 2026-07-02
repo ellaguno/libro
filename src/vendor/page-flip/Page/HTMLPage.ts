@@ -82,9 +82,16 @@ export class HTMLPage extends Page {
 
         const angle = this.state.hardDrawingAngle;
 
+        // Nota (vendor): backface-visibility falla en algunos navegadores/GPU y la
+        // cara trasera se veía en espejo. Se calcula la visibilidad explícitamente:
+        // si la cara apunta en dirección contraria al espectador, se oculta.
+        const normAngle = ((angle % 360) + 360) % 360;
+        const facesAway = normAngle > 90 && normAngle < 270;
+
         const newStyle =
             commonStyle +
             `
+                visibility: ${facesAway ? 'hidden' : 'visible'};
                 backface-visibility: hidden;
                 -webkit-backface-visibility: hidden;
                 clip-path: none;
