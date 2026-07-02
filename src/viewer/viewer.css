@@ -321,7 +321,8 @@ button.vw-pagenum:hover {
 }
 
 .vw-goto {
-    width: 6.5ch;
+    /* Ancho holgado: las flechitas del input numérico no deben tapar el texto. */
+    width: 11ch;
     text-align: center;
     font: inherit;
     color: inherit;
