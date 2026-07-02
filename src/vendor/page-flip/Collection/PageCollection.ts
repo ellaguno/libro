@@ -1,5 +1,5 @@
 import { Orientation, Render } from '../Render/Render';
-import { Page, PageDensity } from '../Page/Page';
+import { Page } from '../Page/Page';
 import { PageFlip } from '../PageFlip';
 import { FlipDirection } from '../Flip/Flip';
 
@@ -56,19 +56,18 @@ export abstract class PageCollection {
             this.portraitSpread.push([i]); // In portrait mode - (one spread = one page)
         }
 
+        // Nota (vendor): el original forzaba PageDensity.HARD en portada y
+        // contraportada cuando showCover=true; aquí la densidad la decide
+        // cada página (data-density), para que existan libros de tapa blanda.
         let start = 0;
         if (this.isShowCover) {
-            this.pages[0].setDensity(PageDensity.HARD);
             this.landscapeSpread.push([start]);
             start++;
         }
 
         for (let i = start; i < this.pages.length; i += 2) {
             if (i < this.pages.length - 1) this.landscapeSpread.push([i, i + 1]);
-            else {
-                this.landscapeSpread.push([i]);
-                this.pages[i].setDensity(PageDensity.HARD);
-            }
+            else this.landscapeSpread.push([i]);
         }
     }
 

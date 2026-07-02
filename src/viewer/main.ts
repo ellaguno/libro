@@ -191,22 +191,20 @@ class BookViewer {
     }
 
     private updateGutter(): void {
-        const block = this.root.querySelector<HTMLElement>('.stf__block');
-        if (!block || !this.gutter) return;
+        if (!this.gutter) return;
 
-        // En modo una-página no hay unión central.
-        const page = block.querySelector<HTMLElement>('.vw-page.--simple');
-        if (!page || this.pageFlip.getOrientation() === 'portrait') {
+        // Sin unión central en modo una-página ni en pliegos de una sola
+        // página (portada o contraportada solas).
+        if (this.pageFlip.getOrientation() === 'portrait' || this.visiblePages().length < 2) {
             this.gutter.style.display = 'none';
             return;
         }
 
-        // El lomo es el borde interior de cualquier página estática.
-        const r = page.getBoundingClientRect();
-        const b = block.getBoundingClientRect();
-        const x = page.classList.contains('--left') ? r.right - b.left : r.left - b.left;
+        // El lomo según la geometría del propio motor (coordenadas relativas
+        // al bloque, igual que las páginas).
+        const rect = this.pageFlip.getBoundsRect();
         this.gutter.style.cssText =
-            `display: block; left: ${x}px; top: ${r.top - b.top}px; height: ${r.height}px;`;
+            `display: block; left: ${rect.left + rect.pageWidth}px; top: ${rect.top}px; height: ${rect.height}px;`;
     }
 
     /** Índices (base 1) de las páginas visibles en este momento. */

@@ -78,7 +78,9 @@ export class HTMLPage extends Page {
     }
 
     private drawHard(commonStyle = ''): void {
-        const pos = this.render.getRect().left + this.render.getRect().width / 2;
+        const rect = this.render.getRect();
+        // Eje de giro: el lomo (centro horizontal del libro dentro del bloque).
+        const pos = rect.left + rect.width / 2;
 
         const angle = this.state.hardDrawingAngle;
 
@@ -97,11 +99,14 @@ export class HTMLPage extends Page {
                 clip-path: none;
                 -webkit-clip-path: none;
             ` +
+            // Nota (vendor): el original asumía que el libro llenaba el bloque
+            // (rect.left = rect.top = 0); si el bloque es más ancho/alto, la
+            // página dura quedaba desfasada respecto al lomo.
             (this.orientation === PageOrientation.LEFT
-                ? `transform-origin: ${this.render.getRect().pageWidth}px 0; 
-                   transform: translate3d(0, 0, 0) rotateY(${angle}deg);`
-                : `transform-origin: 0 0; 
-                   transform: translate3d(${pos}px, 0, 0) rotateY(${angle}deg);`);
+                ? `transform-origin: ${rect.pageWidth}px 0;
+                   transform: translate3d(${pos - rect.pageWidth}px, ${rect.top}px, 0) rotateY(${angle}deg);`
+                : `transform-origin: 0 0;
+                   transform: translate3d(${pos}px, ${rect.top}px, 0) rotateY(${angle}deg);`);
 
         this.element.style.cssText = newStyle;
     }
