@@ -221,16 +221,18 @@ button {
 .vw-gutter {
     position: absolute;
     display: none;
-    width: 90px;
+    width: 120px;
     transform: translateX(-50%);
     pointer-events: none;
     z-index: 2;
     background: linear-gradient(
         to right,
         rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.1) 42%,
-        rgba(0, 0, 0, 0.28) 50%,
-        rgba(0, 0, 0, 0.1) 58%,
+        rgba(0, 0, 0, 0.14) 42%,
+        rgba(0, 0, 0, 0.42) 49.5%,
+        rgba(0, 0, 0, 0.48) 50%,
+        rgba(0, 0, 0, 0.42) 50.5%,
+        rgba(0, 0, 0, 0.14) 58%,
         rgba(0, 0, 0, 0) 100%
     );
 }
