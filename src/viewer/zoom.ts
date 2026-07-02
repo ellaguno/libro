@@ -22,10 +22,10 @@ export class ZoomOverlay {
         this.overlay.innerHTML = `
           <div class="vw-zoom-canvas"></div>
           <div class="vw-zoom-controls">
-            <button data-z="in" title="Acercar">＋</button>
-            <button data-z="out" title="Alejar">－</button>
-            <button data-z="reset" title="Tamaño original">1:1</button>
-            <button data-z="close" title="Cerrar (Esc)">✕</button>
+            <button type="button" data-z="in" title="Acercar">＋</button>
+            <button type="button" data-z="out" title="Alejar">－</button>
+            <button type="button" data-z="reset" title="Tamaño original">1:1</button>
+            <button type="button" data-z="close" title="Cerrar (Esc)">✕</button>
           </div>
         `;
         parent.appendChild(this.overlay);

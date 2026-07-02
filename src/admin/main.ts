@@ -22,11 +22,41 @@ const csrf = main?.dataset.csrf ?? '';
 // Límite del servidor para conservar el PDF original (MAX_PDF_SIZE).
 const maxPdfSize = Number(main?.dataset.maxPdf ?? 0) || Infinity;
 
+// El mismo panel sirve al standalone (defaults) y al plugin de WordPress,
+// que inyecta sus endpoints REST, el nonce y las URLs base vía data-*.
+const apiUpload = main?.dataset.apiUpload ?? 'upload.php';
+const apiBooks = main?.dataset.apiBooks ?? 'books.php';
+const wpNonce = main?.dataset.wpNonce ?? '';
+const booksBase = main?.dataset.booksBase ?? '../books';
+// URL del visor por libro; vacía = mostrar el shortcode en su lugar (WP).
+const viewBase = main?.dataset.viewBase ?? '../ver.php?libro=';
+const workerOverride = main?.dataset.worker ?? '';
+if (workerOverride) {
+    pdfjs.GlobalWorkerOptions.workerSrc = workerOverride;
+}
+
 // ---------------------------------------------------------------- API
+
+/** URL del endpoint de libros con ?action=…, tolerante a permalinks planos
+ *  de WordPress (?rest_route=/...), donde concatenar "?" rompería la URL. */
+function booksUrl(action: string): string {
+    const u = new URL(apiBooks, location.href);
+    u.searchParams.set('action', action);
+    return u.toString();
+}
+
+function authHeaders(): Record<string, string> {
+    return wpNonce ? { 'X-WP-Nonce': wpNonce } : { 'X-CSRF-Token': csrf };
+}
 
 async function api(url: string, data: FormData): Promise<any> {
     data.append('csrf', csrf);
-    const res = await fetch(url, { method: 'POST', body: data, headers: { 'X-CSRF-Token': csrf } });
+    const res = await fetch(url, {
+        method: 'POST',
+        body: data,
+        headers: authHeaders(),
+        credentials: 'same-origin',
+    });
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
         throw new Error(json.error ?? `Error HTTP ${res.status}`);
@@ -143,7 +173,7 @@ async function convertAndUpload(
             fields.cover = await canvasToBlob(coverCanvas, mime, 0.85);
         }
 
-        await api('upload.php', form(fields));
+        await api(apiUpload, form(fields));
 
         page.cleanup();
         onProgress(n, doc.numPages, `Página ${n} de ${doc.numPages}`);
@@ -155,7 +185,7 @@ async function uploadPdf(file: File, slug: string, onProgress: Progress): Promis
     const totalChunks = Math.ceil(file.size / PDF_CHUNK_SIZE);
     for (let i = 0; i < totalChunks; i++) {
         const chunk = file.slice(i * PDF_CHUNK_SIZE, (i + 1) * PDF_CHUNK_SIZE);
-        await api('upload.php', form({
+        await api(apiUpload, form({
             action: 'pdf',
             slug,
             chunkIndex: String(i),
@@ -224,7 +254,7 @@ uploadForm?.addEventListener('submit', async (ev) => {
 
         const hardCover = (document.getElementById('hard-cover') as HTMLInputElement | null)?.checked ?? false;
 
-        const init = await api('upload.php', form({
+        const init = await api(apiUpload, form({
             action: 'init',
             title,
             pages: String(doc.numPages),
@@ -252,14 +282,16 @@ uploadForm?.addEventListener('submit', async (ev) => {
             }
         }
 
-        const fin = await api('upload.php', form({ action: 'finish', slug }));
+        const fin = await api(apiUpload, form({ action: 'finish', slug }));
         setProgress(1, `¡Publicado! ✓${pdfNote}`);
         void loadBooks();
         uploadForm.reset();
-        window.open(fin.url, '_blank');
+        if (fin.url) {
+            window.open(fin.url, '_blank');
+        }
     } catch (err) {
         if (slug) {
-            await api('upload.php', form({ action: 'abort', slug })).catch(() => undefined);
+            await api(apiUpload, form({ action: 'abort', slug })).catch(() => undefined);
         }
         setProgress(0, `Error: ${err instanceof Error ? err.message : err}`);
     } finally {
@@ -281,7 +313,7 @@ async function loadBooks(): Promise<void> {
     const list = document.getElementById('book-list');
     if (!list) return;
     try {
-        const res = await fetch('books.php?action=list');
+        const res = await fetch(booksUrl('list'), { headers: authHeaders(), credentials: 'same-origin' });
         const { books } = (await res.json()) as { books: Book[] };
         list.innerHTML = '';
         if (!books.length) {
@@ -301,13 +333,15 @@ function bookRow(book: Book): HTMLElement {
     const row = document.createElement('div');
     row.className = 'book-row';
     row.innerHTML = `
-      <img src="../books/${book.slug}/thumbs/thumb-001.${ext}" alt="" loading="lazy">
+      <img src="${booksBase}/${book.slug}/thumbs/thumb-001.${ext}" alt="" loading="lazy">
       <div class="book-info">
         <strong></strong>
         <span>${book.pages} páginas · <code>${book.slug}</code></span>
       </div>
       <div class="book-actions">
-        <a href="../ver.php?libro=${encodeURIComponent(book.slug)}" target="_blank">Ver</a>
+        ${viewBase
+            ? `<a href="${viewBase}${encodeURIComponent(book.slug)}" target="_blank">Ver</a>`
+            : `<code class="shortcode-hint">[libro slug=&quot;${book.slug}&quot;]</code>`}
         <button data-act="rename">Renombrar</button>
         <button data-act="delete" class="danger">Eliminar</button>
       </div>
@@ -318,7 +352,7 @@ function bookRow(book: Book): HTMLElement {
         const title = prompt('Nuevo título:', book.title);
         if (!title || title === book.title) return;
         try {
-            await api('books.php?action=rename', form({ slug: book.slug, title }));
+            await api(booksUrl('rename'), form({ slug: book.slug, title }));
             void loadBooks();
         } catch (err) {
             alert(err instanceof Error ? err.message : String(err));
@@ -328,7 +362,7 @@ function bookRow(book: Book): HTMLElement {
     row.querySelector('[data-act="delete"]')!.addEventListener('click', async () => {
         if (!confirm(`¿Eliminar "${book.title}" definitivamente?`)) return;
         try {
-            await api('books.php?action=delete', form({ slug: book.slug }));
+            await api(booksUrl('delete'), form({ slug: book.slug }));
             void loadBooks();
         } catch (err) {
             alert(err instanceof Error ? err.message : String(err));

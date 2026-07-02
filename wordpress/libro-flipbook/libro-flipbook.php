@@ -23,3 +23,5 @@ define('LIBRO_FLIPBOOK_URL', plugin_dir_url(__FILE__));
 
 require_once LIBRO_FLIPBOOK_DIR . 'includes/books.php';
 require_once LIBRO_FLIPBOOK_DIR . 'includes/shortcode.php';
+require_once LIBRO_FLIPBOOK_DIR . 'includes/rest.php';
+require_once LIBRO_FLIPBOOK_DIR . 'includes/admin-page.php';

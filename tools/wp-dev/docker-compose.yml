@@ -1,0 +1,45 @@
+# WordPress local para desarrollo/prueba del plugin libro-flipbook.
+# Uso:  docker compose -f tools/wp-dev/docker-compose.yml up -d
+#       (el plugin se monta desde wordpress/libro-flipbook)
+services:
+  db:
+    image: mariadb:11
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wp
+      MYSQL_PASSWORD: wp
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:php8.2-apache
+    depends_on: [db]
+    ports:
+      - "8091:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wp
+      WORDPRESS_DB_PASSWORD: wp
+    volumes:
+      - wp_data:/var/www/html
+      - ../../wordpress/libro-flipbook:/var/www/html/wp-content/plugins/libro-flipbook
+
+  cli:
+    image: wordpress:cli-php8.2
+    depends_on: [wordpress]
+    user: "33:33"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wp
+      WORDPRESS_DB_PASSWORD: wp
+    volumes:
+      - wp_data:/var/www/html
+      - ../../wordpress/libro-flipbook:/var/www/html/wp-content/plugins/libro-flipbook
+    entrypoint: ["tail", "-f", "/dev/null"]
+
+volumes:
+  db_data:
+  wp_data:

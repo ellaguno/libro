@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite build --watch --mode development",
     "build": "vite build && npm run sync:wp",
-    "sync:wp": "mkdir -p wordpress/libro-flipbook/assets && cp public/assets/viewer.js public/assets/viewer.css wordpress/libro-flipbook/assets/",
+    "sync:wp": "mkdir -p wordpress/libro-flipbook/assets && cp public/assets/viewer.js public/assets/viewer.css public/assets/admin.js public/assets/admin.css public/assets/pdf.worker.min.js wordpress/libro-flipbook/assets/",
     "pack:wp": "npm run build && cd wordpress && zip -rq libro-flipbook.zip libro-flipbook && echo → wordpress/libro-flipbook.zip",
     "typecheck": "tsc --noEmit",
     "serve": "php -S localhost:8080 -t public"

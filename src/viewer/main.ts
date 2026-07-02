@@ -98,22 +98,22 @@ class BookViewer {
             ${this.cfg.embed ? '' : '<a class="vw-back" href="./" title="Volver a la biblioteca">‹</a>'}
             <h1 class="vw-title"></h1>
             <div class="vw-actions">
-              <button class="vw-btn" data-action="zoom" title="Zoom (doble clic en la página)">🔍</button>
-              <button class="vw-btn" data-action="thumbs" title="Miniaturas">▦</button>
-              <button class="vw-btn" data-action="fullscreen" title="Pantalla completa">⛶</button>
+              <button type="button" class="vw-btn" data-action="zoom" title="Zoom (doble clic en la página)">🔍</button>
+              <button type="button" class="vw-btn" data-action="thumbs" title="Miniaturas">▦</button>
+              <button type="button" class="vw-btn" data-action="fullscreen" title="Pantalla completa">⛶</button>
               ${this.cfg.hasPdf
                 ? `<a class="vw-btn" href="${this.cfg.base}original.pdf" download title="Descargar PDF">⬇</a>`
                 : ''}
             </div>
           </header>
           <main class="vw-stage">
-            <button class="vw-nav vw-nav-prev" title="Página anterior">‹</button>
+            <button type="button" class="vw-nav vw-nav-prev" title="Página anterior">‹</button>
             <div class="vw-book-wrap"><div class="vw-book"></div></div>
-            <button class="vw-nav vw-nav-next" title="Página siguiente">›</button>
+            <button type="button" class="vw-nav vw-nav-next" title="Página siguiente">›</button>
           </main>
           <footer class="vw-footer">
             <div class="vw-progress"><div class="vw-progress-fill"></div></div>
-            <button class="vw-pagenum" title="Ir a una página…"></button>
+            <button type="button" class="vw-pagenum" title="Ir a una página…"></button>
           </footer>
           <div class="vw-thumbs" hidden></div>
         `;
