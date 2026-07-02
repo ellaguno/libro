@@ -262,6 +262,33 @@ button {
     );
 }
 
+/* Canto del libro: pila de hojas a los lados, en tono papel con líneas
+   finas que sugieren los bordes de las páginas. */
+.vw-edge {
+    position: absolute;
+    display: none;
+    pointer-events: none;
+    z-index: 1;
+    background: repeating-linear-gradient(
+        to right,
+        rgba(246, 242, 233, 0.85) 0,
+        rgba(246, 242, 233, 0.85) 2px,
+        rgba(140, 130, 112, 0.5) 2px,
+        rgba(140, 130, 112, 0.5) 3px
+    );
+    transition: width 0.35s ease, left 0.35s ease;
+}
+
+.vw-edge.--left {
+    border-radius: 3px 0 0 3px;
+    box-shadow: -1px 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.vw-edge.--right {
+    border-radius: 0 3px 3px 0;
+    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.25);
+}
+
 /* Gris neutro y color heredado: visibles sobre fondos claros u oscuros. */
 .vw-nav {
     background: rgba(128, 128, 128, 0.16);

@@ -25,6 +25,9 @@ interface BookConfig {
 const PRELOAD_AHEAD = 6;
 const PRELOAD_BEHIND = 3;
 
+/** Grosor máximo (px) del canto: la pila de hojas a los lados del libro. */
+const EDGE_MAX_WIDTH = 14;
+
 function readConfig(el: HTMLElement): BookConfig {
     const d = el.dataset;
     return {
@@ -52,6 +55,8 @@ class BookViewer {
     private thumbsDrawer!: HTMLElement;
     private thumbButtons: HTMLButtonElement[] = [];
     private gutter: HTMLElement | null = null;
+    private edgeLeft: HTMLElement | null = null;
+    private edgeRight: HTMLElement | null = null;
 
     constructor(root: HTMLElement, cfg: BookConfig) {
         this.root = root;
@@ -232,7 +237,8 @@ class BookViewer {
 
     // -------------------------------------------- Sombra del canal central
 
-    /** Crea la sombra sutil que emerge de la unión entre las dos páginas. */
+    /** Crea la sombra sutil que emerge de la unión entre las dos páginas
+     *  y el canto (pila de hojas) a los lados del libro. */
     private initGutter(): void {
         const block = this.root.querySelector<HTMLElement>('.stf__block');
         if (!block) return;
@@ -240,12 +246,55 @@ class BookViewer {
         this.gutter.className = 'vw-gutter';
         block.appendChild(this.gutter);
 
-        const update = (): void => this.updateGutter();
+        this.edgeLeft = document.createElement('div');
+        this.edgeLeft.className = 'vw-edge --left';
+        this.edgeRight = document.createElement('div');
+        this.edgeRight.className = 'vw-edge --right';
+        block.append(this.edgeLeft, this.edgeRight);
+
+        const update = (): void => {
+            this.updateGutter();
+            this.updateEdges();
+        };
         this.pageFlip.on('changeOrientation', update);
         this.pageFlip.on('flip', update);
         window.addEventListener('resize', () => requestAnimationFrame(update));
         // Tras el primer render las páginas ya tienen posición.
         requestAnimationFrame(update);
+    }
+
+    /**
+     * Canto del libro: el grosor de cada pila es proporcional a las páginas
+     * que quedan de ese lado (leídas a la izquierda, por leer a la derecha).
+     */
+    private updateEdges(): void {
+        if (!this.edgeLeft || !this.edgeRight) return;
+
+        if (this.pageFlip.getOrientation() === 'portrait') {
+            this.edgeLeft.style.display = 'none';
+            this.edgeRight.style.display = 'none';
+            return;
+        }
+
+        const rect = this.pageFlip.getBoundsRect();
+        const visible = this.visiblePages();
+        const leftPages = visible[0] - 1;
+        const rightPages = this.cfg.pages - visible[visible.length - 1];
+
+        const apply = (el: HTMLElement, pages: number, leftOf: boolean): void => {
+            if (pages < 1) {
+                el.style.display = 'none';
+                return;
+            }
+            const w = Math.max(2, Math.round((EDGE_MAX_WIDTH * pages) / this.cfg.pages));
+            el.style.display = 'block';
+            el.style.width = `${w}px`;
+            el.style.left = `${leftOf ? rect.left - w : rect.left + rect.width}px`;
+            el.style.top = `${rect.top + 1}px`;
+            el.style.height = `${rect.height - 2}px`;
+        };
+        apply(this.edgeLeft, leftPages, true);
+        apply(this.edgeRight, rightPages, false);
     }
 
     private updateGutter(): void {
