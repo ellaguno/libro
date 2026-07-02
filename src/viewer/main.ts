@@ -3,7 +3,7 @@
  * (navegación, zoom, miniaturas, pantalla completa, descarga).
  */
 
-import { PageFlip } from '../vendor/page-flip';
+import { PageFlip, FlippingState } from '../vendor/page-flip';
 import { ZoomOverlay } from './zoom';
 import './viewer.css';
 
@@ -48,6 +48,7 @@ class BookViewer {
     private pageFlip!: PageFlip;
     private zoom!: ZoomOverlay;
     private pageLabel!: HTMLElement;
+    private progressFill!: HTMLElement;
     private thumbsDrawer!: HTMLElement;
     private thumbButtons: HTMLButtonElement[] = [];
     private gutter: HTMLElement | null = null;
@@ -90,7 +91,8 @@ class BookViewer {
             <button class="vw-nav vw-nav-next" title="Página siguiente">›</button>
           </main>
           <footer class="vw-footer">
-            <span class="vw-pagenum"></span>
+            <div class="vw-progress"><div class="vw-progress-fill"></div></div>
+            <button class="vw-pagenum" title="Ir a una página…"></button>
           </footer>
           <div class="vw-thumbs" hidden></div>
         `;
@@ -98,7 +100,10 @@ class BookViewer {
         (this.root.querySelector('.vw-title') as HTMLElement).textContent = this.cfg.title;
         this.buildLogo();
         this.pageLabel = this.root.querySelector('.vw-pagenum') as HTMLElement;
+        this.progressFill = this.root.querySelector('.vw-progress-fill') as HTMLElement;
         this.thumbsDrawer = this.root.querySelector('.vw-thumbs') as HTMLElement;
+
+        this.pageLabel.addEventListener('click', () => this.showPageInput());
 
         this.root.querySelector('.vw-nav-prev')!.addEventListener('click', () => this.pageFlip.flipPrev());
         this.root.querySelector('.vw-nav-next')!.addEventListener('click', () => this.pageFlip.flipNext());
@@ -169,8 +174,12 @@ class BookViewer {
 
     private initPageFlip(): void {
         const bookEl = this.root.querySelector('.vw-book') as HTMLElement;
-        // Enlace profundo: ?p=N abre el libro en esa página.
-        const startParam = Number(new URLSearchParams(location.search).get('p') ?? 1);
+        // Enlace profundo: ?p=N abre el libro en esa página; sin él, se
+        // retoma la última página leída (guardada en localStorage).
+        let startParam = Number(new URLSearchParams(location.search).get('p') ?? 0);
+        if (!startParam) {
+            startParam = this.savedPage();
+        }
         const startPage = Math.min(this.cfg.pages, Math.max(1, startParam || 1)) - 1;
         this.pageFlip = new PageFlip(bookEl, {
             startPage,
@@ -197,7 +206,28 @@ class BookViewer {
         // Doble clic sobre el libro abre el zoom.
         bookEl.addEventListener('dblclick', () => this.openZoom());
 
+        this.bindWheel();
         this.initGutter();
+    }
+
+    /** Rueda del ratón sobre el escenario: hojear (con freno anti-ráfaga). */
+    private bindWheel(): void {
+        const stage = this.root.querySelector('.vw-stage') as HTMLElement;
+        let lastFlip = 0;
+        stage.addEventListener(
+            'wheel',
+            (ev) => {
+                ev.preventDefault();
+                const delta = Math.abs(ev.deltaY) >= Math.abs(ev.deltaX) ? ev.deltaY : ev.deltaX;
+                if (Math.abs(delta) < 4) return;
+                // Los trackpads emiten ráfagas; un solo giro por gesto/animación.
+                const now = performance.now();
+                if (now - lastFlip < 400 || this.pageFlip.getState() !== FlippingState.READ) return;
+                lastFlip = now;
+                delta > 0 ? this.pageFlip.flipNext() : this.pageFlip.flipPrev();
+            },
+            { passive: false }
+        );
     }
 
     // -------------------------------------------- Sombra del canal central
@@ -251,9 +281,62 @@ class BookViewer {
     private onPageChange(): void {
         const visible = this.visiblePages();
         this.pageLabel.textContent = `${visible.join('–')} / ${this.cfg.pages}`;
+        this.progressFill.style.width =
+            `${(visible[visible.length - 1] / this.cfg.pages) * 100}%`;
         this.preload(visible[0]);
         this.highlightThumb(visible[0]);
         this.syncUrl(visible[0]);
+        this.savePage(visible[0]);
+    }
+
+    // localStorage puede fallar (modo privado, cookies bloqueadas): mejor sin
+    // "continuar donde me quedé" que un visor muerto.
+
+    /** Última página leída de este libro; 0 si no hay registro. */
+    private savedPage(): number {
+        try {
+            return Number(localStorage.getItem(`libro:${this.cfg.slug}:pagina`) ?? 0);
+        } catch {
+            return 0;
+        }
+    }
+
+    private savePage(page: number): void {
+        try {
+            localStorage.setItem(`libro:${this.cfg.slug}:pagina`, String(page));
+        } catch {
+            /* sin persistencia */
+        }
+    }
+
+    /** Convierte la etiqueta de página en un campo para saltar a un número. */
+    private showPageInput(): void {
+        if (this.pageLabel.querySelector('input')) return;
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'vw-goto';
+        input.min = '1';
+        input.max = String(this.cfg.pages);
+        input.placeholder = `1–${this.cfg.pages}`;
+        let finished = false;
+        const done = (go: boolean): void => {
+            if (finished) return;
+            finished = true;
+            const n = Math.min(this.cfg.pages, Math.max(1, Number(input.value)));
+            this.onPageChange(); // restaura la etiqueta
+            if (go && input.value !== '') {
+                this.pageFlip.flip(n - 1);
+            }
+        };
+        input.addEventListener('keydown', (ev) => {
+            ev.stopPropagation(); // que las flechas no hojeen el libro
+            if (ev.key === 'Enter') done(true);
+            if (ev.key === 'Escape') done(false);
+        });
+        input.addEventListener('blur', () => done(false));
+        this.pageLabel.textContent = '';
+        this.pageLabel.appendChild(input);
+        input.focus();
     }
 
     /** Refleja la página actual en la URL (?p=N) para poder compartirla. */
@@ -310,6 +393,7 @@ class BookViewer {
     private bindKeyboard(): void {
         document.addEventListener('keydown', (ev) => {
             if (this.zoom.isOpen) return; // el overlay gestiona sus propias teclas
+            if ((ev.target as HTMLElement).tagName === 'INPUT') return;
             switch (ev.key) {
                 case 'ArrowLeft':
                     this.pageFlip.flipPrev();

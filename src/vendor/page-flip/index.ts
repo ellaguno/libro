@@ -10,6 +10,7 @@
 import './Style/stPageFlip.css';
 
 export { PageFlip } from './PageFlip';
+export { FlippingState } from './Flip/Flip';
 export { SizeType } from './Settings';
 export type { FlipSetting } from './Settings';
 export type { PageRect, Point } from './BasicTypes';
