@@ -59,6 +59,22 @@ function libro_flipbook_can_manage(): bool
     return current_user_can('manage_options');
 }
 
+/**
+ * Sistema de archivos de WordPress (transporte directo en hostings normales).
+ * Exigido por los estándares de wordpress.org en lugar de rename/rmdir/unlink.
+ *
+ * @return WP_Filesystem_Base|false
+ */
+function libro_flipbook_fs()
+{
+    global $wp_filesystem;
+    if (!$wp_filesystem) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        WP_Filesystem();
+    }
+    return $wp_filesystem;
+}
+
 function libro_flipbook_can_edit(): bool
 {
     return current_user_can('edit_posts');
@@ -202,8 +218,11 @@ function libro_flipbook_upload_pdf(WP_REST_Request $request): WP_REST_Response
     $part = "$dir/original.pdf.part";
     $current = is_file($part) ? filesize($part) : 0;
     if ($current + $file['size'] > libro_flipbook_max_pdf_size()) {
-        @unlink($part);
+        wp_delete_file($part);
         return libro_flipbook_json(['error' => __('El PDF supera el tamaño máximo permitido', 'libro-flipbook')], 413);
+    }
+    if (!is_uploaded_file($file['tmp_name'])) {
+        return libro_flipbook_json(['error' => __('Fragmento inválido', 'libro-flipbook')], 400);
     }
 
     if ($chunkIndex === 0) {
@@ -211,20 +230,20 @@ function libro_flipbook_upload_pdf(WP_REST_Request $request): WP_REST_Response
         if (strncmp($head, '%PDF', 4) !== 0) {
             return libro_flipbook_json(['error' => __('El archivo no es un PDF válido', 'libro-flipbook')], 400);
         }
-        @unlink($part);
+        wp_delete_file($part);
     }
 
-    $out = fopen($part, 'ab');
-    $in  = fopen($file['tmp_name'], 'rb');
-    if ($out === false || $in === false) {
+    // Los fragmentos son de ~1.5 MB: se anexan en memoria sin problema.
+    $data = file_get_contents($file['tmp_name']);
+    if ($data === false || file_put_contents($part, $data, FILE_APPEND) === false) {
         return libro_flipbook_json(['error' => __('No se pudo guardar el fragmento', 'libro-flipbook')], 500);
     }
-    stream_copy_to_stream($in, $out);
-    fclose($in);
-    fclose($out);
 
     if ($chunkIndex === $totalChunks - 1) {
-        rename($part, "$dir/original.pdf");
+        $fs = libro_flipbook_fs();
+        if (!$fs || !$fs->move($part, "$dir/original.pdf", true)) {
+            return libro_flipbook_json(['error' => __('No se pudo guardar el PDF', 'libro-flipbook')], 500);
+        }
     }
 
     return libro_flipbook_json(['ok' => true, 'chunkIndex' => $chunkIndex]);
@@ -251,10 +270,10 @@ function libro_flipbook_upload_finish(WP_REST_Request $request): WP_REST_Respons
         }
     }
 
-    @unlink("$dir/original.pdf.part"); // fragmentos huérfanos de una subida fallida
+    wp_delete_file("$dir/original.pdf.part"); // fragmentos huérfanos de una subida fallida
     $meta['hasPdf'] = is_file("$dir/original.pdf");
     file_put_contents("$dir/book.json", wp_json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-    @unlink("$dir/pending.json");
+    wp_delete_file("$dir/pending.json");
 
     // Sin página dedicada en WP: el panel muestra el shortcode, no una URL.
     return libro_flipbook_json(['ok' => true, 'slug' => $meta['slug'], 'url' => '']);
@@ -367,7 +386,8 @@ function libro_flipbook_save_image(?array $file, string $dest): ?WP_REST_Respons
     if (!in_array($mime, ['image/webp', 'image/jpeg'], true)) {
         return libro_flipbook_json(['error' => __('Tipo de imagen no permitido', 'libro-flipbook')], 400);
     }
-    if (!move_uploaded_file($file['tmp_name'], $dest)) {
+    $fs = libro_flipbook_fs();
+    if (!is_uploaded_file($file['tmp_name']) || !$fs || !$fs->move($file['tmp_name'], $dest, true)) {
         return libro_flipbook_json(['error' => __('No se pudo guardar la imagen', 'libro-flipbook')], 500);
     }
     return null;
@@ -381,12 +401,6 @@ function libro_flipbook_delete_dir(string $dir): bool
     if ($real === false || $base === false || strpos($real, $base . DIRECTORY_SEPARATOR) !== 0) {
         return false;
     }
-    $it = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($real, FilesystemIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::CHILD_FIRST
-    );
-    foreach ($it as $item) {
-        $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
-    }
-    return rmdir($real);
+    $fs = libro_flipbook_fs();
+    return $fs ? $fs->rmdir($real, true) : false;
 }
