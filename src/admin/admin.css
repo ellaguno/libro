@@ -169,6 +169,11 @@ button[type='submit']:disabled {
     color: #555c6e;
 }
 
+.progress p.is-error {
+    color: #c0362c;
+    font-weight: 600;
+}
+
 /* ---------- Lista de publicaciones ---------- */
 .book-row {
     display: flex;

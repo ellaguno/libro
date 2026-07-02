@@ -69,7 +69,8 @@ if (isset($_GET['logout'])) {
   </header>
 
   <main class="admin-main"
-        data-csrf="<?= e(csrf_token()) ?>">
+        data-csrf="<?= e(csrf_token()) ?>"
+        data-max-pdf="<?= (int) MAX_PDF_SIZE ?>">
 
     <section class="upload-section">
       <h2>Nueva publicación</h2>

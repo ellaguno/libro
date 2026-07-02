@@ -162,6 +162,7 @@ function handle_finish(): void
         }
     }
 
+    @unlink("$dir/original.pdf.part"); // fragmentos huérfanos de una subida fallida
     $meta['hasPdf'] = is_file("$dir/original.pdf");
     file_put_contents("$dir/book.json", json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
     @unlink("$dir/pending.json");
