@@ -25,9 +25,9 @@ $ext = ($book['format'] ?? 'webp') === 'jpeg' ? 'jpg' : 'webp';
 <meta charset="utf-8">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title><?= e($book['title']) ?></title>
+<title><?= e($book['title']) ?> — <?= e(SITE_TITLE) ?></title>
 <link rel="stylesheet" href="<?= asset_url('viewer.css') ?>">
-</head>
+<?= site_theme_style() ?></head>
 <body class="viewer-page">
 <div id="viewer"
      data-slug="<?= e($book['slug']) ?>"
@@ -37,7 +37,10 @@ $ext = ($book['format'] ?? 'webp') === 'jpeg' ? 'jpg' : 'webp';
      data-height="<?= (int) $book['height'] ?>"
      data-ext="<?= e($ext) ?>"
      data-has-pdf="<?= !empty($book['hasPdf']) ? '1' : '0' ?>"
-     data-hard-cover="<?= !empty($book['hardCover']) ? '1' : '0' ?>">
+     data-hard-cover="<?= !empty($book['hardCover']) ? '1' : '0' ?>"
+     data-logo="<?= e(SITE_LOGO) ?>"
+     data-logo-url="<?= e(SITE_LOGO_URL) ?>"
+     data-site-title="<?= e(SITE_TITLE) ?>">
 </div>
 <script type="module" src="<?= asset_url('viewer.js') ?>"></script>
 </body>

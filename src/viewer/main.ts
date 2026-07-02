@@ -16,6 +16,9 @@ interface BookConfig {
     ext: string;
     hasPdf: boolean;
     hardCover: boolean;
+    logo: string;
+    logoUrl: string;
+    siteTitle: string;
 }
 
 /** Páginas por delante/detrás de la actual cuyas imágenes se precargan. */
@@ -33,6 +36,9 @@ function readConfig(el: HTMLElement): BookConfig {
         ext: d.ext ?? 'webp',
         hasPdf: d.hasPdf === '1',
         hardCover: d.hardCover === '1',
+        logo: d.logo ?? '',
+        logoUrl: d.logoUrl ?? '',
+        siteTitle: d.siteTitle ?? '',
     };
 }
 
@@ -90,6 +96,7 @@ class BookViewer {
         `;
 
         (this.root.querySelector('.vw-title') as HTMLElement).textContent = this.cfg.title;
+        this.buildLogo();
         this.pageLabel = this.root.querySelector('.vw-pagenum') as HTMLElement;
         this.thumbsDrawer = this.root.querySelector('.vw-thumbs') as HTMLElement;
 
@@ -101,6 +108,27 @@ class BookViewer {
 
         this.zoom = new ZoomOverlay(this.root);
         this.buildThumbs();
+    }
+
+    /** Logo del sitio (config.php) al final de la barra, con liga opcional. */
+    private buildLogo(): void {
+        if (!this.cfg.logo) return;
+        const img = document.createElement('img');
+        img.src = this.cfg.logo;
+        img.alt = this.cfg.siteTitle;
+        let holder: HTMLElement;
+        if (this.cfg.logoUrl) {
+            const a = document.createElement('a');
+            a.href = this.cfg.logoUrl;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            holder = a;
+        } else {
+            holder = document.createElement('span');
+        }
+        holder.className = 'vw-logo';
+        holder.appendChild(img);
+        this.root.querySelector('.vw-toolbar')!.appendChild(holder);
     }
 
     /** Crea los divs de página con carga diferida (data-src → src). */
@@ -225,6 +253,18 @@ class BookViewer {
         this.pageLabel.textContent = `${visible.join('–')} / ${this.cfg.pages}`;
         this.preload(visible[0]);
         this.highlightThumb(visible[0]);
+        this.syncUrl(visible[0]);
+    }
+
+    /** Refleja la página actual en la URL (?p=N) para poder compartirla. */
+    private syncUrl(current: number): void {
+        const url = new URL(location.href);
+        if (current > 1) {
+            url.searchParams.set('p', String(current));
+        } else {
+            url.searchParams.delete('p');
+        }
+        history.replaceState(null, '', url);
     }
 
     /** Materializa el src de las imágenes cercanas a la página actual. */

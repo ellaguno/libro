@@ -10,6 +10,23 @@ if (!is_file(__DIR__ . '/config.php')) {
 }
 require_once __DIR__ . '/config.php';
 
+// Valores por defecto de marca, para configs anteriores que no los definan.
+if (!defined('SITE_TITLE')) {
+    define('SITE_TITLE', 'Biblioteca');
+}
+if (!defined('SITE_LOGO')) {
+    define('SITE_LOGO', '');
+}
+if (!defined('SITE_LOGO_URL')) {
+    define('SITE_LOGO_URL', '');
+}
+if (!defined('SITE_BACKGROUND')) {
+    define('SITE_BACKGROUND', '');
+}
+if (!defined('SITE_TEXT_COLOR')) {
+    define('SITE_TEXT_COLOR', '');
+}
+
 // Polyfills para hostings con PHP 7.4 (str_starts_with/str_ends_with son de PHP 8.0).
 if (!function_exists('str_starts_with')) {
     function str_starts_with(string $haystack, string $needle): bool
@@ -102,6 +119,41 @@ function asset_url(string $name, string $prefix = ''): string
 function e(string $text): string
 {
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+}
+
+/**
+ * Bloque <style> con el fondo y color de texto de config.php.
+ * Vacío si no se personalizó nada (aplica el CSS por defecto).
+ */
+function site_theme_style(): string
+{
+    $css = '';
+    if (SITE_BACKGROUND !== '') {
+        $css .= 'background:' . SITE_BACKGROUND . ';';
+    }
+    if (SITE_TEXT_COLOR !== '') {
+        $css .= 'color:' . SITE_TEXT_COLOR . ';';
+    }
+    if ($css === '') {
+        return '';
+    }
+    // El valor viene del admin (config.php), pero evita romper el bloque <style>.
+    $css = str_replace(['<', '>'], '', $css);
+    return "<style>body{{$css}}</style>\n";
+}
+
+/** HTML del logo del sitio (con liga opcional); cadena vacía si no hay logo. */
+function site_logo_html(string $class): string
+{
+    if (SITE_LOGO === '') {
+        return '';
+    }
+    $img = '<img src="' . e(SITE_LOGO) . '" alt="' . e(SITE_TITLE) . '">';
+    if (SITE_LOGO_URL !== '') {
+        return '<a class="' . e($class) . '" href="' . e(SITE_LOGO_URL)
+            . '" target="_blank" rel="noopener">' . $img . '</a>';
+    }
+    return '<span class="' . e($class) . '">' . $img . '</span>';
 }
 
 /** Elimina una carpeta recursivamente (solo dentro de BOOKS_DIR). */

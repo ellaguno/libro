@@ -21,6 +21,31 @@ button {
     cursor: pointer;
 }
 
+/* ============ Marca (logo configurable en config.php) ============ */
+.site-logo {
+    position: absolute;
+    top: 1rem;
+    right: 1.2rem;
+    z-index: 10;
+    display: block;
+}
+
+.site-logo img {
+    height: 48px;
+    display: block;
+}
+
+.vw-logo {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.4rem;
+}
+
+.vw-logo img {
+    height: 28px;
+    display: block;
+}
+
 /* ============ Portada (biblioteca) ============ */
 .library-header {
     text-align: center;
@@ -237,10 +262,12 @@ button {
     );
 }
 
+/* Gris neutro y color heredado: visibles sobre fondos claros u oscuros. */
 .vw-nav {
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(128, 128, 128, 0.16);
     border: none;
-    color: rgba(255, 255, 255, 0.75);
+    color: inherit;
+    opacity: 0.8;
     font-size: 2rem;
     line-height: 1;
     padding: 1.2rem 0.55rem;
@@ -250,7 +277,8 @@ button {
 }
 
 .vw-nav:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(128, 128, 128, 0.32);
+    opacity: 1;
 }
 
 .vw-footer {
@@ -368,6 +396,14 @@ button {
 @media (max-width: 640px) {
     .vw-nav {
         display: none; /* en móvil se navega deslizando */
+    }
+
+    .site-logo img {
+        height: 34px;
+    }
+
+    .vw-logo img {
+        height: 22px;
     }
 
     .vw-title {

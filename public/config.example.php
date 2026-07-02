@@ -13,6 +13,29 @@ const ADMIN_PASSWORD = 'cambiame';
 // y pégalo aquí. Si no está vacío, tiene prioridad sobre ADMIN_PASSWORD.
 const ADMIN_PASSWORD_HASH = '';
 
+// ---- Marca / personalización ----
+
+// Título del sitio: aparece en la portada de la biblioteca y en la pestaña.
+const SITE_TITLE = 'Biblioteca';
+
+// Logo mostrado arriba a la derecha (en la biblioteca y en el visor).
+// Ruta relativa a public/ (p. ej. 'logo.png') o URL completa. Vacío = sin logo.
+const SITE_LOGO = '';
+
+// Liga al hacer clic en el logo (p. ej. 'https://tusitio.com'). Vacío = sin liga.
+const SITE_LOGO_URL = '';
+
+// Fondo de la biblioteca y del visor. Acepta cualquier valor CSS de background:
+//   un color:      '#f4efe6'
+//   un degradado:  'linear-gradient(160deg, #2b3040, #16181f)'
+//   una imagen:    "url('fondo.jpg') center / cover fixed #16181f"
+// Vacío = el degradado azul oscuro por defecto.
+const SITE_BACKGROUND = '';
+
+// Color del texto sobre ese fondo (p. ej. '#222' para fondos claros).
+// Vacío = gris claro por defecto (pensado para fondos oscuros).
+const SITE_TEXT_COLOR = '';
+
 // Carpeta donde se guardan las publicaciones (relativa a public/).
 const BOOKS_DIR = __DIR__ . '/books';
 
