@@ -19,6 +19,14 @@ interface BookConfig {
     logo: string;
     logoUrl: string;
     siteTitle: string;
+    /** URL base de los archivos del libro (pages/, thumbs/, original.pdf). */
+    base: string;
+    /** Embebido (shortcode/iframe): oculta la flecha de volver a la biblioteca. */
+    embed: boolean;
+    /** Página dedicada (ver.php): lee/escribe ?p= en la URL y usa teclado/rueda. */
+    deepLink: boolean;
+    /** Página inicial explícita (shortcode); 0 = portada o última leída. */
+    start: number;
 }
 
 /** Páginas por delante/detrás de la actual cuyas imágenes se precargan. */
@@ -42,6 +50,10 @@ function readConfig(el: HTMLElement): BookConfig {
         logo: d.logo ?? '',
         logoUrl: d.logoUrl ?? '',
         siteTitle: d.siteTitle ?? '',
+        base: d.base ?? `books/${d.slug ?? ''}/`,
+        embed: d.embed === '1',
+        deepLink: d.deepLink === '1',
+        start: Number(d.start ?? 0),
     };
 }
 
@@ -63,15 +75,19 @@ class BookViewer {
         this.cfg = cfg;
         this.buildDom();
         this.initPageFlip();
-        this.bindKeyboard();
+        // El teclado es global: solo lo captura la página dedicada del visor,
+        // nunca un libro embebido dentro de un artículo.
+        if (cfg.deepLink) {
+            this.bindKeyboard();
+        }
     }
 
     private pageUrl(n: number): string {
-        return `books/${this.cfg.slug}/pages/page-${String(n).padStart(3, '0')}.${this.cfg.ext}`;
+        return `${this.cfg.base}pages/page-${String(n).padStart(3, '0')}.${this.cfg.ext}`;
     }
 
     private thumbUrl(n: number): string {
-        return `books/${this.cfg.slug}/thumbs/thumb-${String(n).padStart(3, '0')}.${this.cfg.ext}`;
+        return `${this.cfg.base}thumbs/thumb-${String(n).padStart(3, '0')}.${this.cfg.ext}`;
     }
 
     // ------------------------------------------------------------- DOM
@@ -79,14 +95,14 @@ class BookViewer {
     private buildDom(): void {
         this.root.innerHTML = `
           <header class="vw-toolbar">
-            <a class="vw-back" href="./" title="Volver a la biblioteca">‹</a>
+            ${this.cfg.embed ? '' : '<a class="vw-back" href="./" title="Volver a la biblioteca">‹</a>'}
             <h1 class="vw-title"></h1>
             <div class="vw-actions">
               <button class="vw-btn" data-action="zoom" title="Zoom (doble clic en la página)">🔍</button>
               <button class="vw-btn" data-action="thumbs" title="Miniaturas">▦</button>
               <button class="vw-btn" data-action="fullscreen" title="Pantalla completa">⛶</button>
               ${this.cfg.hasPdf
-                ? `<a class="vw-btn" href="books/${this.cfg.slug}/original.pdf" download title="Descargar PDF">⬇</a>`
+                ? `<a class="vw-btn" href="${this.cfg.base}original.pdf" download title="Descargar PDF">⬇</a>`
                 : ''}
             </div>
           </header>
@@ -179,9 +195,15 @@ class BookViewer {
 
     private initPageFlip(): void {
         const bookEl = this.root.querySelector('.vw-book') as HTMLElement;
-        // Enlace profundo: ?p=N abre el libro en esa página; sin él, se
-        // retoma la última página leída (guardada en localStorage).
-        let startParam = Number(new URLSearchParams(location.search).get('p') ?? 0);
+        // Página inicial: ?p=N solo en la página dedicada (embebido en un
+        // artículo, ?p pertenece a la página anfitriona); luego el atributo
+        // del shortcode; al final, la última página leída (localStorage).
+        let startParam = this.cfg.deepLink
+            ? Number(new URLSearchParams(location.search).get('p') ?? 0)
+            : 0;
+        if (!startParam) {
+            startParam = this.cfg.start;
+        }
         if (!startParam) {
             startParam = this.savedPage();
         }
@@ -211,7 +233,11 @@ class BookViewer {
         // Doble clic sobre el libro abre el zoom.
         bookEl.addEventListener('dblclick', () => this.openZoom());
 
-        this.bindWheel();
+        // La rueda hojea solo en la página dedicada; dentro de un artículo
+        // debe seguir haciendo scroll normal.
+        if (this.cfg.deepLink) {
+            this.bindWheel();
+        }
         this.initGutter();
     }
 
@@ -390,6 +416,7 @@ class BookViewer {
 
     /** Refleja la página actual en la URL (?p=N) para poder compartirla. */
     private syncUrl(current: number): void {
+        if (!this.cfg.deepLink) return; // embebido: la URL es del anfitrión
         const url = new URL(location.href);
         if (current > 1) {
             url.searchParams.set('p', String(current));
@@ -462,8 +489,10 @@ class BookViewer {
     }
 }
 
-const rootEl = document.getElementById('viewer');
-if (rootEl) {
+// Arranque: la página dedicada (#viewer, en ver.php) o cualquier cantidad de
+// libros embebidos (.libro-flipbook, shortcode de WordPress u otro CMS).
+for (const rootEl of document.querySelectorAll<HTMLElement>('#viewer, .libro-flipbook')) {
+    rootEl.classList.add('vw-app');
     const cfg = readConfig(rootEl);
     if (cfg.slug && cfg.pages > 0) {
         new BookViewer(rootEl, cfg);

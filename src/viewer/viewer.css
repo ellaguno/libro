@@ -117,11 +117,25 @@ button {
     overflow: hidden;
 }
 
-#viewer {
+/* Contenedor del visor: en la página dedicada (#viewer) llena la ventana;
+   embebido (.libro-flipbook) toma la altura que le dé el anfitrión. */
+.vw-app {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+#viewer {
     height: 100vh;
     height: 100dvh;
+}
+
+.libro-flipbook {
+    background: radial-gradient(ellipse at top, #2b3040 0%, #16181f 70%);
+    color: #e8e8ec;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .vw-toolbar {

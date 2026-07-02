@@ -39,7 +39,9 @@ $ext = ($book['format'] ?? 'webp') === 'jpeg' ? 'jpg' : 'webp';
      data-hard-cover="<?= !empty($book['hardCover']) ? '1' : '0' ?>"
      data-logo="<?= e(SITE_LOGO) ?>"
      data-logo-url="<?= e(SITE_LOGO_URL) ?>"
-     data-site-title="<?= e(SITE_TITLE) ?>">
+     data-site-title="<?= e(SITE_TITLE) ?>"
+     data-deep-link="1"
+     data-embed="<?= !empty($_GET['embed']) ? '1' : '0' ?>">
 </div>
 <script type="module" src="<?= asset_url('viewer.js') ?>"></script>
 </body>

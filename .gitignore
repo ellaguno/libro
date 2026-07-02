@@ -1,6 +1,8 @@
 # Dependencias y build
 node_modules/
 public/assets/
+wordpress/libro-flipbook/assets/
+wordpress/libro-flipbook.zip
 
 # Configuración local (contiene la contraseña del panel) — usa config.example.php
 public/config.php
