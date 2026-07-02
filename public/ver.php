@@ -11,7 +11,7 @@ $book = $slug !== '' ? read_book($slug) : null;
 if ($book === null) {
     http_response_code(404);
     echo '<!DOCTYPE html><html lang="es"><meta charset="utf-8">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>"><title>No encontrado</title>'
+' . site_favicon_html() . '<title>No encontrado</title>'
         . '<body style="font-family:sans-serif;text-align:center;padding:4rem">'
         . '<h1>Publicación no encontrada</h1><p><a href="./">Volver a la biblioteca</a></p></body></html>';
     exit;
@@ -23,8 +23,7 @@ $ext = ($book['format'] ?? 'webp') === 'jpeg' ? 'jpg' : 'webp';
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<?= site_favicon_html() ?><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title><?= e($book['title']) ?> — <?= e(SITE_TITLE) ?></title>
 <link rel="stylesheet" href="<?= asset_url('viewer.css') ?>">
 <?= site_theme_style() ?></head>

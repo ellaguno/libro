@@ -16,6 +16,10 @@ const ADMIN_PASSWORD_HASH = '';
 // ---- Marca / personalización ----
 
 // Título del sitio: aparece en la portada de la biblioteca y en la pestaña.
+// SITE_ICON es el emoji junto al título y el favicon de la pestaña;
+// vacío = sin icono junto al título (la pestaña usa 📖).
+const SITE_ICON = '📚';
+
 const SITE_TITLE = 'Biblioteca';
 
 // Logo mostrado arriba a la derecha (en la biblioteca y en el visor).

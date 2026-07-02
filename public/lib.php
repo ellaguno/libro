@@ -14,6 +14,9 @@ require_once __DIR__ . '/config.php';
 if (!defined('SITE_TITLE')) {
     define('SITE_TITLE', 'Biblioteca');
 }
+if (!defined('SITE_ICON')) {
+    define('SITE_ICON', '📚');
+}
 if (!defined('SITE_LOGO')) {
     define('SITE_LOGO', '');
 }
@@ -119,6 +122,15 @@ function asset_url(string $name, string $prefix = ''): string
 function e(string $text): string
 {
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+}
+
+/** Favicon de emoji (SITE_ICON; 📖 si está vacío) como SVG embebido. */
+function site_favicon_html(): string
+{
+    $icon = SITE_ICON !== '' ? SITE_ICON : '📖';
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+        . '<text y=".9em" font-size="90">' . $icon . '</text></svg>';
+    return '<link rel="icon" href="data:image/svg+xml,' . rawurlencode($svg) . '">' . "\n";
 }
 
 /**

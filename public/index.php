@@ -11,15 +11,14 @@ $books = list_books();
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<?= site_favicon_html() ?><meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e(SITE_TITLE) ?></title>
 <link rel="stylesheet" href="<?= asset_url('viewer.css') ?>">
 <?= site_theme_style() ?></head>
 <body class="library">
 <?= site_logo_html('site-logo') ?>
 <header class="library-header">
-  <h1>📚 <?= e(SITE_TITLE) ?></h1>
+  <h1><?= e(trim(SITE_ICON . ' ' . SITE_TITLE)) ?></h1>
 </header>
 
 <main class="library-grid">
