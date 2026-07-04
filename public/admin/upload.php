@@ -93,6 +93,10 @@ function handle_page(): void
     // La página 1 trae además la portada para la rejilla de la biblioteca.
     if ($index === 1 && isset($_FILES['cover'])) {
         save_uploaded_image('cover', "$dir/cover.$ext");
+        // Invalida la copia JPEG para redes sociales de una publicación previa.
+        if (is_file("$dir/cover-og.jpg")) {
+            @unlink("$dir/cover-og.jpg");
+        }
     }
 
     json_response(['ok' => true, 'index' => $index]);

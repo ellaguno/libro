@@ -4,7 +4,7 @@ Tags: flipbook, pdf, magazine, book, viewer
 Requires at least: 5.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.2.1
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,13 @@ Books are stored as plain files in `wp-content/uploads/libro/<slug>/`
 (page images + book.json); nothing is added to the database.
 
 == Changelog ==
+
+= 0.3.0 =
+* Social sharing: when a post embeds a book (shortcode or block) and has no
+  featured image, its cover is exposed as og:image / Twitter Card, so shared
+  links show the cover on Facebook, WhatsApp, X, etc.
+* WebP covers get an automatic JPEG copy (cover-og.jpg) for scrapers that do
+  not accept WebP. Disable the tags with the libro_flipbook_social_meta filter.
 
 = 0.2.1 =
 * File operations migrated to the WordPress Filesystem API (Plugin Check compliance).

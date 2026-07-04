@@ -14,6 +14,9 @@ raíz del dominio o en un subdirectorio (p. ej. `midominio.com/book/`).
 - Visor con zoom (rueda, pellizco, doble clic), miniaturas, pantalla completa,
   descarga del PDF original, navegación con teclado, táctil y responsive.
 - Enlaces profundos: `ver.php?libro=slug&p=7` abre el libro en la página 7.
+- Al compartir la liga de una publicación en redes sociales (Facebook, WhatsApp,
+  X…) aparece su portada, vía Open Graph y Twitter Cards (con copia JPEG
+  automática de la portada WebP para scrapers que no aceptan WebP).
 - Plan B sin navegador: `tools/render_pdf.py` pre-renderiza localmente con poppler.
 
 ## Desarrollo local

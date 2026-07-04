@@ -124,6 +124,81 @@ function e(string $text): string
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
 
+/** URL absoluta de la raíz pública (donde vive index.php), sin barra final. */
+function base_url(): string
+{
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $dir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
+    return ($https ? 'https' : 'http') . '://' . $host . rtrim($dir, '/');
+}
+
+/**
+ * Portada de un libro para compartir en redes sociales: ['url' => …, 'file' => …].
+ * WhatsApp y otros scrapers no aceptan WebP en og:image, así que si la portada
+ * es WebP se genera con GD una copia JPEG (cover-og.jpg, cacheada junto al
+ * libro); si GD no soporta WebP se usa el original. Null si no hay portada.
+ */
+function social_cover(array $book): ?array
+{
+    $slug = sanitize_slug((string) ($book['slug'] ?? ''));
+    if ($slug === '') {
+        return null;
+    }
+    $dir = BOOKS_DIR . '/' . $slug;
+    $ext = ($book['format'] ?? 'webp') === 'jpeg' ? 'jpg' : 'webp';
+    // Portada dedicada; los libros antiguos usan la página 1 como respaldo.
+    $src = is_file("$dir/cover.$ext") ? "cover.$ext"
+        : (is_file("$dir/pages/page-001.$ext") ? "pages/page-001.$ext" : null);
+    if ($src === null) {
+        return null;
+    }
+    if ($ext === 'webp') {
+        $jpg = "$dir/cover-og.jpg";
+        if (!is_file($jpg) && function_exists('imagecreatefromwebp')) {
+            $img = @imagecreatefromwebp("$dir/$src");
+            if ($img !== false) {
+                @imagejpeg($img, $jpg, 85);
+                imagedestroy($img);
+            }
+        }
+        if (is_file($jpg)) {
+            $src = 'cover-og.jpg';
+        }
+    }
+    return [
+        'url'  => base_url() . '/books/' . rawurlencode($slug) . '/' . $src,
+        'file' => "$dir/$src",
+    ];
+}
+
+/**
+ * Metadatos Open Graph + Twitter Card para que la liga compartida en redes
+ * sociales muestre título, descripción y portada. $cover viene de social_cover().
+ */
+function social_meta_html(string $title, string $description, string $url, ?array $cover): string
+{
+    $html = '<meta property="og:type" content="website">' . "\n"
+        . '<meta property="og:site_name" content="' . e(SITE_TITLE) . '">' . "\n"
+        . '<meta property="og:title" content="' . e($title) . '">' . "\n"
+        . '<meta property="og:description" content="' . e($description) . '">' . "\n"
+        . '<meta property="og:url" content="' . e($url) . '">' . "\n";
+    if ($cover !== null) {
+        $html .= '<meta property="og:image" content="' . e($cover['url']) . '">' . "\n";
+        $size = @getimagesize($cover['file']);
+        if (is_array($size)) {
+            $html .= '<meta property="og:image:width" content="' . (int) $size[0] . '">' . "\n"
+                . '<meta property="og:image:height" content="' . (int) $size[1] . '">' . "\n";
+        }
+        $html .= '<meta name="twitter:card" content="summary_large_image">' . "\n"
+            . '<meta name="twitter:image" content="' . e($cover['url']) . '">' . "\n";
+    } else {
+        $html .= '<meta name="twitter:card" content="summary">' . "\n";
+    }
+    return $html;
+}
+
 /** Favicon de emoji (SITE_ICON; 📖 si está vacío) como SVG embebido. */
 function site_favicon_html(): string
 {

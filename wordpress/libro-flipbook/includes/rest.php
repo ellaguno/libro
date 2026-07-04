@@ -177,6 +177,10 @@ function libro_flipbook_upload_page(WP_REST_Request $request): WP_REST_Response
     }
     if ($err === null && $index === 1 && isset($files['cover'])) {
         $err = libro_flipbook_save_image($files['cover'], "$dir/cover.$ext");
+        // Invalida la copia JPEG para redes sociales de una publicación previa.
+        if (is_file("$dir/cover-og.jpg")) {
+            wp_delete_file("$dir/cover-og.jpg");
+        }
     }
     if ($err !== null) {
         return $err;

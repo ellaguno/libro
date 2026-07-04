@@ -25,7 +25,12 @@ $ext = ($book['format'] ?? 'webp') === 'jpeg' ? 'jpg' : 'webp';
 <meta charset="utf-8">
 <?= site_favicon_html() ?><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title><?= e($book['title']) ?> — <?= e(SITE_TITLE) ?></title>
-<link rel="stylesheet" href="<?= asset_url('viewer.css') ?>">
+<?= social_meta_html(
+    $book['title'],
+    sprintf('%d páginas — %s', (int) $book['pages'], SITE_TITLE),
+    base_url() . '/ver.php?libro=' . rawurlencode($book['slug']),
+    social_cover($book)
+) ?><link rel="stylesheet" href="<?= asset_url('viewer.css') ?>">
 <?= site_theme_style() ?></head>
 <body class="viewer-page">
 <div id="viewer"

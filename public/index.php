@@ -13,7 +13,12 @@ $books = list_books();
 <meta charset="utf-8">
 <?= site_favicon_html() ?><meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e(SITE_TITLE) ?></title>
-<link rel="stylesheet" href="<?= asset_url('viewer.css') ?>">
+<?= social_meta_html(
+    SITE_TITLE,
+    $books ? sprintf('%d publicaciones', count($books)) : 'Biblioteca de publicaciones',
+    base_url() . '/',
+    $books ? social_cover($books[0]) : null
+) ?><link rel="stylesheet" href="<?= asset_url('viewer.css') ?>">
 <?= site_theme_style() ?></head>
 <body class="library">
 <?= site_logo_html('site-logo') ?>
